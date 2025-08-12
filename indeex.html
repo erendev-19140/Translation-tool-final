@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Elite Translator — APS</title>
+
+  <!-- Fonts + icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
+  <style>
+    /* ---------- Visual theme (dark, glass, rounded) ---------- */
+    :root{
+      --bg:#071223;
+      --panel: rgba(6,12,20,0.72);
+      --glass: rgba(255,255,255,0.03);
+      --accentA:#ff7eb3;
+      --accentB:#65d4ff;
+      --muted:#88a5be;
+      --text:#e8f2fb;
+      --success:#6ee7b7;
+    }
+    *{box-sizing:border-box;font-family:'Poppins',sans-serif;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: radial-gradient(circle at 10% 10%, rgba(80,110,140,0.08), transparent 6%),
+                  linear-gradient(180deg,#0a2030 0%, #04101a 60%);
+      color:var(--text);
+      padding:20px;
+    }
+
+    /* decorative mountain & stars background (subtle) */
+    body::after{
+      content:"";
+      position:fixed;left:0;right:0;bottom:0;height:220px;
+      background:linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.7));
+      pointer-events:none;
+    }
+
+    /* stage card */
+    .stage{width:100%;max-width:760px;padding:18px;border-radius:16px;}
+    .panel{
+      border-radius:14px;
+      padding:18px;
+      background:linear-gradient(180deg, rgba(16,28,38,0.7), rgba(6,12,20,0.68));
+      border:1px solid rgba(150,200,255,0.03);
+      box-shadow:0 12px 40px rgba(0,0,0,0.6), 0 0 10px rgba(80,140,200,0.03) inset;
+    }
+
+    /* top text areas row */
+    .top-row{display:flex;gap:12px}
+    .box{flex:1;border-radius:10px;padding:14px;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.02);position:relative;min-height:200px}
+    .label{position:absolute;left:18px;top:12px;color:var(--muted);font-size:14px;pointer-events:none}
+    textarea{width:100%;height:100%;border:none;background:transparent;color:var(--text);font-size:16px;padding-top:28px;resize:none;outline:none}
+    .output{color:#dbeefc}
+
+    /* controls strip */
+    .controls{display:flex;align-items:center;justify-content:space-between;padding-top:12px}
+    .left-controls,.right-controls{display:flex;align-items:center;gap:12px}
+    .ico{display:flex;gap:10px;align-items:center}
+    .ico i{font-size:18px;color:#c9d9ea;cursor:pointer}
+    .ico i:hover{color:var(--accentB)}
+    select.lang{background:transparent;border:none;color:var(--text);padding:8px 10px;border-radius:8px;font-size:15px;appearance:none}
+    .swap{cursor:pointer;color:#cbdff3;font-size:18px;padding:6px}
+
+    /* buttons */
+    .actions{margin-top:16px;display:flex;flex-direction:column;gap:12px}
+    .btn{width:100%;padding:14px;border-radius:10px;border:none;font-weight:600;cursor:pointer;font-size:16px}
+    .btn.primary{background:linear-gradient(90deg,var(--accentA),var(--accentB));color:#fff;box-shadow:0 8px 24px rgba(101,212,255,0.06)}
+    .btn.secondary{background:linear-gradient(90deg,var(--accentB),var(--accentA));color:#fff}
+
+    /* toast */
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:rgba(0,0,0,0.6);color:#fff;padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);display:none}
+
+    /* small */
+    .muted{color:var(--muted);font-size:13px}
+    @media (max-width:720px){
+      .top-row{flex-direction:column}
+      .box{min-height:160px}
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="panel" aria-label="Translator panel">
+      <div class="top-row">
+        <div class="box">
+          <div class="label">Enter text</div>
+          <textarea class="input-area" placeholder="Type or use microphone..." rows="7" aria-label="Source text"></textarea>
+        </div>
+        <div class="box">
+          <div class="label">Translation</div>
+          <textarea class="output-area output" placeholder="Translation appears here" readonly rows="7" aria-label="Translated text"></textarea>
+        </div>
+      </div>
+
+      <div class="controls" style="margin-top:12px">
+        <div class="left-controls">
+          <div class="ico">
+            <i class="fas fa-volume-up speaker" data-side="src" title="Speak source"></i>
+            <i class="fas fa-copy copy" data-side="src" title="Copy source"></i>
+          </div>
+          <select class="lang src-lang" aria-label="Source language"></select>
+        </div>
+
+        <div class="middle-controls" style="display:flex;align-items:center;gap:10px">
+          <div class="swap" title="Swap languages"><i class="fas fa-exchange-alt"></i></div>
+        </div>
+
+        <div class="right-controls">
+          <select class="lang tgt-lang" aria-label="Target language"></select>
+          <div class="ico">
+            <i class="fas fa-volume-up speaker" data-side="tgt" title="Speak translation"></i>
+            <i class="fas fa-copy copy" data-side="tgt" title="Copy translation"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary action-translate">Translate Text</button>
+        <button class="btn secondary action-voice">🎤 Microphone</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  /* ========== Elite Translator — Single-file JS ========== */
+  (function(){
+    'use strict';
+
+    /* ---------- Elements ---------- */
+    const srcInput = document.querySelector('.input-area');
+    const tgtOutput = document.querySelector('.output-area');
+    const srcSelect = document.querySelector('.src-lang');
+    const tgtSelect = document.querySelector('.tgt-lang');
+    const btnTranslate = document.querySelector('.action-translate');
+    const btnVoice = document.querySelector('.action-voice');
+    const swapBtn = document.querySelector('.swap');
+    const speakers = Array.from(document.querySelectorAll('.speaker'));
+    const copies = Array.from(document.querySelectorAll('.copy'));
+    const toast = document.getElementById('toast');
+
+    /* ---------- Toast util ---------- */
+    function showToast(msg, time=2200){
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(()=> toast.style.display = 'none', time);
+    }
+
+    /* ---------- Full language map ---------- */
+    const LANGUAGES = {
+      "auto":"Auto-detect",
+      "en-GB":"English","hi-IN":"Hindi","kn-IN":"Kannada","te-IN":"Telugu","ta-LK":"Tamil",
+      "es-ES":"Spanish","fr-FR":"French","de-DE":"German","ru-RU":"Russian","ar-SA":"Arabic",
+      "bn-IN":"Bengali","pa-IN":"Panjabi","pt-PT":"Portuguese","nl-NL":"Dutch","it-IT":"Italian",
+      "ja-JP":"Japanese","ko-KR":"Korean","vi-VN":"Vietnamese","id-ID":"Indonesian","tr-TR":"Turkish",
+      "sv-SE":"Swedish","pl-PL":"Polish","uk-UA":"Ukrainian","ro-RO":"Romanian","cs-CZ":"Czech",
+      "el-GR":"Greek","he-IL":"Hebrew","mr-IN":"Marathi","gu-IN":"Gujarati","ml-IN":"Malayalam",
+      "or-IN":"Odia","si-LK":"Sinhala","my-MM":"Burmese","ne-NP":"Nepali","ur-PK":"Urdu",
+      "fa-IR":"Persian","th-TH":"Thai","tl-PH":"Tagalog","km-KM":"Khmer","la-VA":"Latin"
+      // (trimmed list — add more codes if you want)
+    };
+
+    /* ---------- Fill language selects reliably ---------- */
+    function populateLanguageSelects(){
+      // clear
+      srcSelect.innerHTML = '';
+      tgtSelect.innerHTML = '';
+      for(const [code, label] of Object.entries(LANGUAGES)){
+        const o1 = document.createElement('option');
+        o1.value = code; o1.textContent = label;
+        const o2 = o1.cloneNode(true);
+        srcSelect.appendChild(o1);
+        tgtSelect.appendChild(o2);
+      }
+      // sensible defaults
+      srcSelect.value = 'en-GB';
+      tgtSelect.value = 'hi-IN';
+    }
+
+    // call after DOM present
+    populateLanguageSelects();
+
+    /* ---------- Robust fetch with timeout ---------- */
+    async function fetchWithTimeout(resource, options = {}) {
+      const { timeout = 8000 } = options;
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const res = await fetch(resource, {...options, signal: controller.signal});
+        clearTimeout(id);
+        return res;
+      } catch (err) {
+        clearTimeout(id);
+        throw err;
+      }
+    }
+
+    /* ---------- Translation logic: try MyMemory then LibreTranslate fallback ---------- */
+    async function translateText(text, from, to){
+      // use MyMemory GET first
+      const urlMM = https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to};
+      try {
+        const res = await fetchWithTimeout(urlMM, { timeout: 9000 });
+        if(!res.ok) throw new Error('MyMemory HTTP ' + res.status);
+        const data = await res.json();
+        let out = data?.responseData?.translatedText || '';
+        // prefer exact match id=0
+        if(Array.isArray(data.matches)){
+          for(const m of data.matches){ if(m && m.id === 0 && m.translation){ out = m.translation; break; } }
+        }
+        if(!out) throw new Error('Empty MyMemory response');
+        console.log('MyMemory success');
+        return out;
+      } catch (err) {
+        console.warn('MyMemory failed:', err);
+        // fallback to LibreTranslate public instance (POST) — this may be rate-limited but often works
+        try {
+          const libreUrl = 'https://libretranslate.de/translate';
+          const res2 = await fetchWithTimeout(libreUrl, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ q: text, source: (from === 'auto' ? 'auto' : from.split('-')[0]), target: to.split('-')[0], format: 'text' }),
+            timeout: 9000
+          });
+          if(!res2.ok) throw new Error('Libre HTTP ' + res2.status);
+          const j = await res2.json();
+          if(j && (j.translatedText || j.translation)) {
+            console.log('LibreTranslate success');
+            return j.translatedText || j.translation;
+          }
+          throw new Error('Empty Libre response');
+        } catch (err2) {
+          console.error('Fallback translate failed:', err2);
+          throw new Error('All translation providers failed');
+        }
+      }
+    }
+
+    /* ---------- UI glue: translate button ---------- */
+    let lastRequest = null;
+    btnTranslate.addEventListener('click', async ()=>{
+      const text = srcInput.value.trim();
+      if(!text) { showToast('Enter text to translate'); return; }
+      const from = srcSelect.value || 'auto';
+      const to = tgtSelect.value || 'en-GB';
+      btnTranslate.disabled = true;
+      btnTranslate.textContent = 'Translating...';
+      try {
+        const result = await translateText(text, from, to);
+        tgtOutput.value = result;
+        showToast('Translation ready');
+      } catch (err) {
+        tgtOutput.value = '';
+        showToast('Translation failed — check console');
+        console.error(err);
+      } finally {
+        btnTranslate.disabled = false;
+        btnTranslate.textContent = 'Translate Text';
+      }
+    });
+
+    /* ---------- Swap languages and fields ---------- */
+    swapBtn.addEventListener('click', ()=>{
+      const tmpText = srcInput.value;
+      srcInput.value = tgtOutput.value;
+      tgtOutput.value = tmpText;
+      const s = srcSelect.value;
+      srcSelect.value = tgtSelect.value;
+      tgtSelect.value = s;
+      showToast('Swapped');
+    });
+
+    /* ---------- Copy icons ---------- */
+    copies.forEach(btn=>{
+      btn.addEventListener('click', async (e)=>{
+        const side = e.currentTarget.dataset.side;
+        const text = (side === 'src') ? srcInput.value : tgtOutput.value;
+        if(!text) { showToast('Nothing to copy'); return; }
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('Copied');
+        } catch(err){
+          console.error('Copy failed', err);
+          showToast('Copy failed');
+        }
+      });
+    });
+
+    /* ---------- TTS (speakers) ---------- */
+    speakers.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const side = btn.dataset.side;
+        const text = (side === 'src') ? srcInput.value : tgtOutput.value;
+        if(!text) { showToast('Nothing to speak'); return; }
+        const utter = new SpeechSynthesisUtterance(text);
+        try {
+          // map selected code to speech language; prefer the select corresponding
+          utter.lang = (side === 'src') ? srcSelect.value : tgtSelect.value;
+          speechSynthesis.cancel();
+          speechSynthesis.speak(utter);
+          showToast('Speaking');
+        } catch(e){
+          console.error('TTS failed', e);
+          showToast('TTS failed');
+        }
+      });
+    });
+
+    /* ---------- Speech-to-Text (microphone) ---------- */
+    function hasSpeechSupport(){
+      return ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window);
+    }
+
+    if(hasSpeechSupport()){
+      const Recog = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let recog = null;
+      let listening = false;
+      try {
+        recog = new Recog();
+        recog.interimResults = true;
+        recog.continuous = false;
+        recog.onresult = (evt) => {
+          const transcript = Array.from(evt.results).map(r=>r[0].transcript).join('');
+          srcInput.value = transcript;
+        };
+        recog.onend = ()=> {
+          listening = false;
+          btnVoice.textContent = '🎤 Microphone';
+        };
+        recog.onerror = (e) => {
+          console.warn('Recognition error', e);
+          listening = false;
+          btnVoice.textContent = '🎤 Microphone';
+        };
+      } catch(e) {
+        console.warn('Speech recognition construction failed', e);
+      }
+
+      btnVoice.addEventListener('click', ()=>{
+        if(!recog) { showToast('Speech recognition not available'); return; }
+        if(!listening){
+          try {
+            recog.lang = srcSelect.value || 'en-GB';
+            srcInput.value = ''; // optional: clear previous results
+            recog.start();
+            listening = true;
+            btnVoice.textContent = '🎙 Listening...';
+            showToast('Listening');
+          } catch(e){
+            console.error('Start failed', e);
+            showToast('Cannot start mic');
+          }
+        } else {
+          try { recog.stop(); } catch(e){ /* ignore */ }
+        }
+      });
+
+      // keep recog language in sync if user changes select
+      srcSelect.addEventListener('change', ()=> { if(recog) recog.lang = srcSelect.value; });
+    } else {
+      // hide mic button if unsupported (or keep but notify)
+      btnVoice.style.display = 'none';
+      console.warn('Speech recognition unavailable. Use Chrome/Edge on localhost/https for mic.');
+    }
+
+    /* ---------- keyboard shortcut: Ctrl/Cmd + Enter to translate ---------- */
+    srcInput.addEventListener('keydown', (e)=>{
+      if((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        btnTranslate.click();
+      }
+    });
+
+    /* ---------- small UX ---------- */
+    srcInput.addEventListener('input', () => { if(!srcInput.value.trim()) tgtOutput.value = ''; });
+
+    /* ---------- debug ready message ---------- */
+    console.log('Elite Translator initialized — languages loaded:', Object.keys(LANGUAGES).length);
+  })();
+  </script>
+</body>
+</html>
