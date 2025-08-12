@@ -1,0 +1,130 @@
+/* Theme (renamed) - keeps your GIF background and glass style */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root{
+  --glass-bg: rgba(20,20,30,0.5);
+  --accent1: #ff7eb3;
+  --accent2: #65d4ff;
+  --text: #fff;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif}
+
+body{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 10px;
+  position:relative;
+  overflow:hidden;
+  background: url("https://i.pinimg.com/originals/c0/29/77/c0297792ab96bd4e641d5aa971062c7e.gif") no-repeat center bottom / cover;
+}
+
+.stage{
+  width:100%;
+  max-width:690px;
+  padding:30px;
+  border-radius:15px;
+  background:var(--glass-bg);
+  box-shadow:0 8px 25px rgba(0,0,0,0.4);
+  border:1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(20px);
+  position:relative;
+  z-index:1;
+  color:var(--text);
+  text-shadow:0 0 5px rgba(0,0,0,0.6);
+  transition:transform .35s ease,box-shadow .35s ease;
+  animation:glow 6s ease-in-out infinite alternate;
+}
+
+.stage:hover{transform:scale(1.02);box-shadow:0 15px 40px rgba(255,126,179,0.35)}
+
+@keyframes glow{
+  from{border-color:rgba(255,126,179,0.5);box-shadow:0 0 15px rgba(255,126,179,0.28)}
+  to{border-color:rgba(101,212,255,0.5);box-shadow:0 0 20px rgba(101,212,255,0.28)}
+}
+
+.panel{border-radius:10px;border:1px solid rgba(255,255,255,0.08);overflow:hidden}
+
+/* text row (two textareas) */
+.text-row{display:flex;border-bottom:1px solid rgba(255,255,255,0.08)}
+.input-area,.output-area{
+  width:100%;
+  height:250px;
+  border:none;
+  outline:none;
+  resize:none;
+  padding:10px 15px;
+  font-size:18px;
+  background:transparent;
+  color:#f0f0f0;
+  text-shadow:0 0 5px rgba(0,0,0,0.6);
+  border-radius:5px;
+}
+.output-area{border-left:1px solid rgba(255,255,255,0.08);}
+
+/* toolbar */
+.toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 15px;
+  background:rgba(255,255,255,0.03);
+}
+
+.left-group,.right-group{display:flex;align-items:center;gap:12px}
+.ico-group{display:flex;align-items:center;gap:8px}
+.ico-group i{width:46px;height:36px;display:flex;align-items:center;justify-content:center;color:#ddd;font-size:16px;cursor:pointer;transition:all .18s ease}
+.ico-group i:hover{transform:scale(1.08);color:var(--accent1);text-shadow:0 0 6px rgba(255,126,179,0.7)}
+
+.lang-select{background:transparent;border:none;color:var(--text);outline:none;font-size:18px;padding-left:5px}
+
+/* swap button */
+.swap-btn{
+  background:transparent;border:none;color:#ddd;cursor:pointer;font-size:18px;transition:all .18s ease;
+}
+.swap-btn:hover{color:var(--accent2);transform:rotate(180deg);text-shadow:0 0 6px rgba(101,212,255,0.6)}
+
+/* main translate button */
+.action-translate{
+  width:100%;
+  margin-top:20px;
+  padding:14px;
+  border-radius:5px;border:none;cursor:pointer;
+  font-size:17px;color:var(--text);
+  background:linear-gradient(135deg,var(--accent1),var(--accent2));
+  box-shadow:0 0 15px rgba(255,126,179,0.35);
+  transition:all .25s ease;
+}
+.action-translate:hover{transform:scale(1.03);box-shadow:0 0 20px rgba(101,212,255,0.45);background:linear-gradient(135deg,var(--accent2),var(--accent1))}
+
+/* voice button style (desktop only) */
+.voice-control{
+  display:none;
+  width:100%;
+  margin-top:10px;
+  padding:14px;border-radius:5px;border:none;cursor:pointer;
+  font-size:17px;color:var(--text);
+  background:linear-gradient(135deg,var(--accent2),var(--accent1));
+  box-shadow:0 0 15px rgba(101,212,255,0.28);
+  transition:all .18s ease;
+}
+.voice-control:hover{transform:scale(1.03);box-shadow:0 0 20px rgba(255,126,179,0.35)}
+
+@media (max-width:660px){
+  .text-row{flex-direction:column}
+  .output-area{border-left:0;border-top:1px solid rgba(255,255,255,0.08)}
+  .input-area,.output-area{height:200px}
+  .ico-group{display:none}
+  .action-translate{padding:13px;font-size:16px}
+}
+
+/* show voice button only on desktop widths */
+@media (min-width:1024px){
+  .voice-control{display:block}
+}
+
+/* custom small tweaks for scrollbars */
+.input-area::-webkit-scrollbar,.lang-select::-webkit-scrollbar{width:8px}
+.input-area::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:8px}

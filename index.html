@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <title>Language Translator | APS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="theme.css" />
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+</head>
+<body>
+  <main class="stage">
+    <section class="panel">
+      <div class="text-row">
+        <textarea class="input-area" placeholder="Enter text" spellcheck="false"></textarea>
+        <textarea class="output-area" placeholder="Translation" readonly disabled spellcheck="false"></textarea>
+      </div>
+
+      <div class="toolbar">
+        <div class="left-group">
+          <div class="ico-group">
+            <i class="speaker from-speak fas fa-volume-up" data-side="src"></i>
+            <i class="copy from-copy fas fa-copy" data-side="src"></i>
+          </div>
+          <select class="lang-select src-select"></select>
+        </div>
+
+        <button class="swap-btn" title="Swap languages"><i class="fas fa-exchange-alt"></i></button>
+
+        <div class="right-group">
+          <select class="lang-select tgt-select"></select>
+          <div class="ico-group">
+            <i class="speaker to-speak fas fa-volume-up" data-side="tgt"></i>
+            <i class="copy to-copy fas fa-copy" data-side="tgt"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <button class="action-translate">Translate Text</button>
+
+    <!-- Desktop-only mic button -->
+    <button id="voice-toggle" class="voice-control" title="Speak">🎤 Speak</button>
+  </main>
+
+  <script src="js/langs.js"></script>
+  <script src="js/translator.js"></script>
+</body>
+</html>
